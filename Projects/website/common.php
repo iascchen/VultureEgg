@@ -1,4 +1,12 @@
 <?php
+
+/*
+Created by leeturn for Vulture Egg Project
+Modified by CHEN Hao
+    on 20-8-13.
+    EMail : iascchen@gmail.com
+*/
+
 $data_config = include 'config.php';
 $conn = NULL;
 function data_con()
