@@ -443,17 +443,17 @@ function update_temperature(temperature_values, render_type) {
     }
 }
 
-MPU6050_RAW2G = 16384.0;
-MPU6050_RAW2Angle = 131.0;
+// MPU6050_RAW2G = 16384.0;
+// MPU6050_RAW2Angle = 131.0;
 
 function update_position(obj, position_values) {
-    var g_x = position_values["acc_x"] / MPU6050_RAW2G;
-    var g_y = position_values["acc_y"] / MPU6050_RAW2G;
-    var g_z = position_values["acc_z"] / MPU6050_RAW2G;
+    var g_x = position_values["acc_x"];
+    var g_y = position_values["acc_y"];
+    var g_z = position_values["acc_z"];
 
-    var yaw = position_values["gyro_x"] / MPU6050_RAW2Angle;
-    var pitch = position_values["gyro_y"] / MPU6050_RAW2Angle;
-    var roll = position_values["gyro_z"] / MPU6050_RAW2Angle;
+    var yaw = position_values["gyro_x"];
+    var pitch = position_values["gyro_y"];
+    var roll = position_values["gyro_z"];
 
     var g_vector = new THREE.Vector3(g_x, g_y, g_z);
 

@@ -69,21 +69,21 @@ function queryCurrent($egg_id = NULL, $pi_id = NULL, $before_time = NULL)
     }
 
     $sql = "select a.*, b.*, c.*, d.* from (" .
-        "(select time as mpu_time, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z " .
+        "(select FROM_UNIXTIME(time) as mpu_time, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z " .
         "from egg_report " .
         "where " . $condition1 . "and sensor_acc_available > 0 " .
-        "order by time desc limit 1) a," .
-        "(select time as temp_time, temp_01, temp_02, temp_03, temp_04,temp_05,temp_06,temp_07,temp_08,temp_09,temp_10,temp_11,temp_12,temp_13,temp_14 " .
+        "order by time desc, t_cnt desc limit 1) a," .
+        "(select FROM_UNIXTIME(time) as temp_time, temp_01, temp_02, temp_03, temp_04,temp_05,temp_06,temp_07,temp_08,temp_09,temp_10,temp_11,temp_12,temp_13,temp_14 " .
         "from egg_report " .
         "where " . $condition1 . "and sensor_temp_available > 0 " .
-        "order by time desc limit 1) b," .
-        "(select time as hum_time , humidity " .
+        "order by time desc, t_cnt desc limit 1) b," .
+        "(select FROM_UNIXTIME(time) as hum_time , humidity " .
         "from egg_report " .
         "where " . $condition1 . "and sensor_humidity_available > 0 " .
-        "order by time desc limit 1) c," .
-        "(select time as weather_time, humidity as weather_hum, light, pressure, temperature " .
+        "order by time desc, t_cnt desc limit 1) c," .
+        "(select FROM_UNIXTIME(time) as weather_time, humidity as weather_hum, light, pressure, temperature " .
         "from pi_report " .
-        "where " . $condition2 . "order by time desc limit 1) d);";
+        "where " . $condition2 . "order by time desc, t_cnt desc limit 1) d);";
 
     // print $sql;
 

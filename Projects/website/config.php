@@ -5,7 +5,7 @@ return array(
     "mysql_password"=>"", // 连接数据库密码
     "mysql_database"=>"egg", // 数据库的名字
 
-    "egg_id"=>"EEF0",
-    "pi_id"=>"HEAE"
+    "egg_id"=>"BC6A29BD0E5C",
+    "pi_id"=>"02:10:08:41:50:74"
 );
 ?>
