@@ -11,6 +11,7 @@
 // "Color" : fill each area with solid color
 // "Light" : simulate to render heat map of temperature by light.
 
+RENDER_EGG = "egg";
 RENDER_COLOR = "Color";
 RENDER_LIGHT = "Light";
 var render_type = RENDER_COLOR;
@@ -55,6 +56,7 @@ var current_temperatures = null;
 var current_position = null;
 
 var lights = [];
+var env_lights = [];
 var light_points = [];
 
 var lut;
@@ -277,23 +279,28 @@ function addEnvironmentLights(scene) {
     scene.add(light);
 }
 
-function addEnvironmentLights_Dark(scene, color) {
+var BLACK = new THREE.Color(0x000000);
+var EGG_COLOR = new THREE.Color(0xffddaa);
+var AMBIENT_COLOR = new THREE.Color(0xf0f0f0);
 
-    if (color == null) color = 0xffddaa;
+function addEnvironmentBlackLights(scene) {
+
+    var color = BLACK;
 
     var ambient = new THREE.AmbientLight(color);
+    env_lights[0] = ambient;
     scene.add(ambient);
 
-    var light = new THREE.PointLight(color, 0.1);
+    var light = new THREE.PointLight(color, 1);
     light.position.set(100, 100, 100);
+    env_lights[1] = light;
     scene.add(light);
 
-    light = new THREE.PointLight(color, 0.1);
+    light = new THREE.HemisphereLight(color, color, 1);
     light.position.set(-100, -100, -100);
+    env_lights[2] = light;
     scene.add(light);
 }
-
-var BLACK = new THREE.Color(0x000000);
 
 function addBlackLights(obj, lights_location, intensity, type, face_inverse) {
 
@@ -320,9 +327,9 @@ function addBlackLights(obj, lights_location, intensity, type, face_inverse) {
     }
 }
 
-var LIGHT_POINTS_MAT_RED = new THREE.MeshPhongMaterial( { color: 0xff0000 , doubleSided: true} );
-var LIGHT_POINTS_MAT_WHITE = new THREE.MeshPhongMaterial( { color: 0xffffff , doubleSided: true} );
-var LIGHT_POINTS_GEO = new THREE.SphereGeometry( 0.05 );
+var LIGHT_POINTS_MAT_RED = new THREE.MeshPhongMaterial({ color: 0xff0000, doubleSided: true});
+var LIGHT_POINTS_MAT_WHITE = new THREE.MeshPhongMaterial({ color: 0xffffff, doubleSided: true});
+var LIGHT_POINTS_GEO = new THREE.SphereGeometry(0.05);
 
 function addLightPoints(obj, lights_location) {
 
@@ -385,6 +392,10 @@ function update_temperature(temperature_values, render_type) {
     var _color, _sensor_name, _sensor_value;
     if ((m_mesh != null) && (temperature_values != null)) {
 
+        env_lights[0].color = BLACK;
+        env_lights[1].color = BLACK;
+        env_lights[2].color = BLACK;
+
         if (render_type == RENDER_COLOR) {
             var _face, _vertex;
 
@@ -440,11 +451,13 @@ function update_temperature(temperature_values, render_type) {
                 _light.color = _color;
             }
         }
+        else if (render_type == RENDER_EGG) {
+            env_lights[0].color = AMBIENT_COLOR;
+            env_lights[1].color = EGG_COLOR;
+            env_lights[2].color = EGG_COLOR;
+        }
     }
 }
-
-// MPU6050_RAW2G = 16384.0;
-// MPU6050_RAW2Angle = 131.0;
 
 function update_position(obj, position_values) {
     var g_x = position_values["acc_x"];

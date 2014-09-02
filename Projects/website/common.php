@@ -16,27 +16,6 @@ function data_con()
     $conn = mysql_connect($data_config['mysql_host'], $data_config['mysql_username'], $data_config['mysql_password']);
 }
 
-//function query($sql, $database_num = 0)
-//{
-//    GLOBAL $conn;
-//    GLOBAL $data_config;
-//    if (!$conn) {
-//        data_con();
-//    }
-//    $database = $data_config['mysql_database'][$database_num];
-//    mysql_select_db($database, $conn);
-//    $result = mysql_query($sql);
-//    if (is_resource($result)) {
-//        $return = array();
-//        while ($row = mysql_fetch_array($result, MYSQLI_ASSOC)) {
-//            $return[] = $row;
-//        }
-//        return $return;
-//    } else {
-//        return $result;
-//    }
-//}
-
 function query($sql)
 {
     GLOBAL $conn;
@@ -90,18 +69,6 @@ function queryCurrent($egg_id = NULL, $pi_id = NULL, $before_time = NULL)
     $return = query($sql);
     return $return[0];
 }
-
-//function queryByTime($timestamp = NULL, $database_num = 0)
-//{
-//    if ($timestamp == null) {
-//        $sql = "select * from EEF0  order by `Time` DESC  LIMIT 1";
-//    } else {
-//
-//        $sql = "select * from EEF0  where `Time` >'" . $timestamp . "' order by `Time` DESC limit 1";
-//    }
-//    $return = query($sql, $database_num);
-//    return $return[0];
-//}
 
 function database_close()
 {

@@ -205,8 +205,8 @@
                     <header>Smart Egg Microduino</header>
                     <input type="checkbox" id="animation_check" name="animation_check" title="Animating"
                            onclick="animation_check(this);">Animating</input>
-                    <input type="checkbox" id="render_check" name="render_check" title="Rendering"
-                           onclick="render_check(this);">Rendering</input>
+                    <input type="checkbox" id="render_check" name="render_check" title="Rendering(Inner Surface)"
+                           onclick="render_check(this);">Rendering(Inner Surface)</input>
                     <section>
                         <div id="info" style="width:100%;height:100%;"></div>
                     </section>
@@ -224,17 +224,18 @@
 // ******************
 // Setting
 
-render_type = RENDER_COLOR;
+render_type = RENDER_EGG;
 sensors_layout = AREA_LAYOUT;
 
 colorMap = 'rainbow';
 isDrawEdgeLine = true;
 
-var face_inverse = true;
+var face_inverse = false;
 
 var animating = false;
 
 var json_file = 'data_current.php';
+// var json_file = 'data.json';
 
 // ******************
 // Global
@@ -265,9 +266,11 @@ function render_check(element) {
 
     if (element.checked) {
         render_type = RENDER_LIGHT;
+        face_inverse = true;
     }
     else {
-        render_type = RENDER_COLOR;
+        render_type = RENDER_EGG;
+        face_inverse = false;
     }
 
     loaded = false;
@@ -312,62 +315,6 @@ var loaded = false;
 init();
 animate();
 
-/*
- function update_html_data(data) {
-
- if (data.hum) {
- $("#hum_data").html(data.hum.Humidity + " %");
- $("#hum_time").html(data.hum.Time);
- $("#weather_time").html(data.weather.Time);
- // $("#mpu").css("height", "0").animate({height: "480px"});
- }
-
- if (data.mpu) {
- $("#a_x").html(data.mpu['Acc-x'] + " g");
- $("#a_y").html(data.mpu['Acc-y'] + " g");
- $("#a_z").html(data.mpu['Acc-z'] + " g");
-
- $("#g_x").html(data.mpu['Gyro-x']);
- $("#g_y").html(data.mpu['Gyro-y']);
- $("#g_z").html(data.mpu['Gyro-z']);
-
- $("#mpu_time").html(data.mpu['Time']);
-
- // $("#mpu").css("height", "0").animate({height: "480px"});
- // mpu = data.mpu;
- }
-
- if (data.temp) {
- var temp = data.temp;
- var html = "";
- $(".temp").remove();
-
- for (var i in  temp) {
- if (i.indexOf("Temp-") > -1) {
- html = html + "<li class='temp' onmouseout='hide_sensor(this, " + i.substr(5) + ");' onmouseover='show_sensor(this, " + i.substr(5) + ");'>" + temp[i] + " ℃</li>";
- }
- }
-
- $("#temp li.tem_position").after(html);
-
- $("#avg_temp").html(data.avg_temp + " ℃");
-
- $("#temp_time").html(data.temp.Time);
- // $("#temp").css("height", "0").animate({height: "480px"});
- }
-
- if (data.weather) {
- $("#weather_temp").html(data.weather.Temperature + " ℃");
- $("#weather_hum").html(data.weather.Humidity + " %");
- $("#weather_Light").html(data.weather.Light + " Lux");
- $("#weather_pres").html(Math.round(data.weather.Pressure / 100) / 10 + " kPa");
-
- $("#weather_time").html(data.weather.Time);
- // $("#hum").css("height", "0").animate({height: "480px"});
- }
- }
- */
-
 function update_html_data(data) {
 
     if (data) {
@@ -383,9 +330,9 @@ function update_html_data(data) {
         $("#a_y").html(data['acc_y'] + " g");
         $("#a_z").html(data['acc_z'] + " g");
 
-        $("#g_x").html(data['gyro_x'] + " °");
-        $("#g_y").html(data['gyro_y'] + " °");
-        $("#g_z").html(data['gyro_z'] + " °");
+        $("#g_x").html(data['gyro_x'] + " °/s");
+        $("#g_y").html(data['gyro_y'] + " °/s");
+        $("#g_z").html(data['gyro_z'] + " °/s");
 
         $("#mpu_time").html(data['mpu_time']);
 
@@ -451,7 +398,8 @@ function init() {
     loadModel(scene, render_type, face_inverse, sensors_layout,
             radius, 0.6, 'point');
 
-    addEnvironmentLights_Dark(scene, 0xffffff);
+    // addEnvironmentLights(scene);
+    addEnvironmentBlackLights(scene);
 
     // renderer
 
@@ -545,6 +493,7 @@ var angle = Math.PI / 2;
 var index = 0 , times = 0;
 
 function animate() {
+
     if (loaded) {
         controls.update();
 
