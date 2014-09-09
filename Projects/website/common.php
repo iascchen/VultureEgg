@@ -48,7 +48,7 @@ function queryCurrent($egg_id = NULL, $pi_id = NULL, $before_time = NULL)
     }
 
     $sql = "select a.*, b.*, c.*, d.* from (" .
-        "(select FROM_UNIXTIME(time) as mpu_time, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z " .
+        "(select FROM_UNIXTIME(time) as mpu_time, acc_x, acc_y, acc_z, quaternion_0, quaternion_1, quaternion_2, quaternion_3 " .
         "from egg_report " .
         "where " . $condition1 . "and sensor_acc_available > 0 " .
         "order by time desc, t_cnt desc limit 1) a," .

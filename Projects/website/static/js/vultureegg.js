@@ -207,7 +207,7 @@ function get_lights_location(radius, sensors_layout) {
     }
 }
 
-var LIGHT_POINTS_LOC = get_lights_location(1.4, sensors_layout);
+var LIGHT_POINTS_LOC = get_lights_location(1.45, sensors_layout);
 
 function loadModel(scene, render_type, face_inverse, sensors_layout, light_radius, light_intensity, light_type) {
 
@@ -459,22 +459,26 @@ function update_temperature(temperature_values, render_type) {
     }
 }
 
+var AXIS_Z = new THREE.Vector3(0, 0, 0);
+var AXIS_X = new THREE.Vector3(1, 0, 0);
+var Q_INIT = new THREE.Quaternion();
+Q_INIT.setFromAxisAngle(AXIS_X, Math.PI);
+
+var MPU6050_RAW2G = 16384.0;
+
 function update_position(obj, position_values) {
-    var g_x = position_values["acc_x"];
-    var g_y = position_values["acc_y"];
-    var g_z = position_values["acc_z"];
+    var q = [];
+    q[0] = position_values["quaternion_0"] / MPU6050_RAW2G; // w
+    q[1] = position_values["quaternion_1"] / MPU6050_RAW2G; // x
+    q[2] = position_values["quaternion_2"] / MPU6050_RAW2G; // y
+    q[3] = position_values["quaternion_3"] / MPU6050_RAW2G; // z
 
-    var yaw = position_values["gyro_x"];
-    var pitch = position_values["gyro_y"];
-    var roll = position_values["gyro_z"];
+    // console.log("euler: %j", euler);
+    obj.lookAt(AXIS_Z);
+    obj.quaternion.multiply(Q_INIT);
 
-    var g_vector = new THREE.Vector3(g_x, g_y, g_z);
-
-    // obj.rotation.x = roll;
-    // obj.rotation.y = yaw;
-    // obj.rotation.z = pitch;
-
-    obj.lookAt(g_vector);
+    var quaternion = new THREE.Quaternion(q[1], -q[3], q[2], q[0]);
+    obj.quaternion.multiply(quaternion);
 }
 
 var ZERO = {x: 0, y: 0, z: 0 };

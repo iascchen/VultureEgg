@@ -165,14 +165,25 @@
                     </li>
                 </ul>
                 <ul>
-                    <li><b>xGYRO:</b>
+                    <li><b>xGravity:</b>
                         <show id="g_x"></show>
                     </li>
-                    <li><b>yGYRO:</b>
+                    <li><b>yGravity:</b>
                         <show id="g_y"></show>
                     </li>
-                    <li><b>zGYRO:</b>
+                    <li><b>zGravity:</b>
                         <show id="g_z"></show>
+                    </li>
+                </ul>
+                <ul>
+                    <li><b>yaw:</b>
+                        <show id="yaw"></show>
+                    </li>
+                    <li><b>pitch:</b>
+                        <show id="pitch"></show>
+                    </li>
+                    <li><b>roll:</b>
+                        <show id="roll"></show>
                     </li>
                 </ul>
                 <span class="follow"><b>Last Update:</b><br><show id="mpu_time"></show></span>
@@ -294,6 +305,97 @@ function update() {
     load_json_file(json_file);
 }
 
+var FLOAT_FIXED = 2;
+
+function toFixed(value, precision) {
+    var power = Math.pow(10, precision || 0);
+    return String(Math.round(value * power) / power);
+}
+
+function update_html_data(data) {
+
+    if (data) {
+
+        // hum in egg
+
+        $("#hum_data").html(toFixed(data.humidity, FLOAT_FIXED) + " %");
+        $("#hum_time").html(data.hum_time);
+
+        // temperature in egg
+
+        var temp = data["temp_"];
+        var html = "";
+        $(".temp").remove();
+
+        var _sensor_name;
+        for (var i = 0; i < 14; i++) {
+            _sensor_name = "temp_" + String("00" + (i + 1)).slice(-2);
+            html = html + "<li class='temp' onmouseout='hide_sensor(this, " + i + ");' onmouseover='show_sensor(this, " + i + ");'>" + toFixed(data[_sensor_name], FLOAT_FIXED) + " ℃</li>";
+        }
+
+        $("#temp li.tem_position").after(html);
+
+        $("#avg_temp").html(toFixed(data.avg_temp, FLOAT_FIXED) + " ℃");
+
+        $("#temp_time").html(data.temp_time);
+
+        // weather in Raspberry Pi
+
+        $("#weather_temp").html(toFixed(data.temperature, FLOAT_FIXED) + " ℃");
+        $("#weather_hum").html(toFixed(data.weather_hum, FLOAT_FIXED) + " %");
+        $("#weather_Light").html(toFixed(data.light, FLOAT_FIXED) + " Lux");
+        $("#weather_pres").html(toFixed(data.pressure / 1000.0, FLOAT_FIXED) + " kPa");
+
+        $("#weather_time").html(data.weather_time);
+        // $("#hum").css("height", "0").animate({height: "480px"});
+
+        // mpu of egg
+
+        var q = [];
+        q[0] = data["quaternion_0"] / MPU6050_RAW2G;    // w
+        q[1] = data["quaternion_1"] / MPU6050_RAW2G;    // x
+        q[2] = data["quaternion_2"] / MPU6050_RAW2G;    // y
+        q[3] = data["quaternion_3"] / MPU6050_RAW2G;    // z
+
+        // calculate gravity vector
+        var gravity = [];
+        gravity[0] = 2 * (q[1] * q[3] - q[0] * q[2]);
+        gravity[1] = 2 * (q[0] * q[1] + q[2] * q[3]);
+        gravity[2] = q[0] * q[0] - q[1] * q[1] - q[2] * q[2] + q[3] * q[3];
+        // console.log("g: %j", gravity);
+
+        // calculate yaw/pitch/roll angles
+        var ypr = [];
+        ypr[0] = Math.atan2(2 * q[1] * q[2] - 2 * q[0] * q[3], 2 * q[0] * q[0] + 2 * q[1] * q[1] - 1);
+        ypr[1] = Math.atan(gravity[0] / Math.sqrt(gravity[1] * gravity[1] + gravity[2] * gravity[2]));
+        ypr[2] = Math.atan(gravity[1] / Math.sqrt(gravity[0] * gravity[0] + gravity[2] * gravity[2]));
+        // console.log("ypr: %j", ypr);
+
+        /*
+         // euler
+         var euler = [];;
+         euler[0] = Math.round( Math.atan2(2*q[1]*q[2] - 2*q[0]*q[3], 2*q[0]*q[0] + 2*q[1]*q[1] - 1) * 100) / 100;
+         euler[1] = Math.round( -Math.asin(2*q[1]*q[3] + 2*q[0]*q[2]) * 100) / 100;
+         euler[2] = Math.round( Math.atan2(2*q[2]*q[3] - 2*q[0]*q[1], 2*q[0]*q[0] + 2*q[3]*q[3] - 1) * 100) / 100;
+         // console.log("euler: %j", euler);
+         */
+
+        $("#a_x").html(toFixed(data['acc_x'], FLOAT_FIXED));
+        $("#a_y").html(toFixed(data['acc_y'], FLOAT_FIXED));
+        $("#a_z").html(toFixed(data['acc_z'], FLOAT_FIXED));
+
+        $("#g_x").html(toFixed(gravity[0], FLOAT_FIXED) + " g");
+        $("#g_y").html(toFixed(gravity[1], FLOAT_FIXED) + " g");
+        $("#g_z").html(toFixed(gravity[2], FLOAT_FIXED) + " g");
+
+        $("#yaw").html(toFixed(ypr[0] * 180 / Math.PI, FLOAT_FIXED) + " °/s");
+        $("#pitch").html(toFixed(ypr[1] * 180 / Math.PI, FLOAT_FIXED) + " °/s");
+        $("#roll").html(toFixed(ypr[2] * 180 / Math.PI, FLOAT_FIXED) + " °/s");
+
+        $("#mpu_time").html(data['mpu_time']);
+    }
+}
+
 // update();
 setInterval(update, 500);
 
@@ -314,57 +416,6 @@ var loaded = false;
 // Data
 init();
 animate();
-
-function update_html_data(data) {
-
-    if (data) {
-
-        // hum in egg
-
-        $("#hum_data").html(data.humidity + " %");
-        $("#hum_time").html(data.hum_time);
-
-        // mpu of egg
-
-        $("#a_x").html(data['acc_x'] + " g");
-        $("#a_y").html(data['acc_y'] + " g");
-        $("#a_z").html(data['acc_z'] + " g");
-
-        $("#g_x").html(data['gyro_x'] + " °/s");
-        $("#g_y").html(data['gyro_y'] + " °/s");
-        $("#g_z").html(data['gyro_z'] + " °/s");
-
-        $("#mpu_time").html(data['mpu_time']);
-
-        // temperature in egg
-
-        var temp = data["temp_"];
-        var html = "";
-        $(".temp").remove();
-
-        var _sensor_name;
-        for (var i = 0; i < 14; i++) {
-            _sensor_name = "temp_" + String("00" + (i + 1)).slice(-2);
-            html = html + "<li class='temp' onmouseout='hide_sensor(this, " + i + ");' onmouseover='show_sensor(this, " + i + ");'>" + data[_sensor_name] + " ℃</li>";
-        }
-
-        $("#temp li.tem_position").after(html);
-
-        $("#avg_temp").html(data.avg_temp + " ℃");
-
-        $("#temp_time").html(data.temp_time);
-
-        // weather in Raspberry Pi
-
-        $("#weather_temp").html(data.temperature + " ℃");
-        $("#weather_hum").html(data.weather_hum + " %");
-        $("#weather_Light").html(data.light + " Lux");
-        $("#weather_pres").html(Math.round(data.pressure / 100) / 10 + " kPa");
-
-        $("#weather_time").html(data.weather_time);
-        // $("#hum").css("height", "0").animate({height: "480px"});
-    }
-}
 
 function init() {
     $("#animation_check").removeAttr("checked");
@@ -411,9 +462,9 @@ function init() {
     // camera
 
     camera = new THREE.PerspectiveCamera(40, div_width / div_height, 1, 100);
-    camera.position.z = camera_distance;
-    camera.position.y = camera_distance / 2;
-    camera.position.x = camera_distance / 2;
+    camera.position.x = camera_distance;
+    // camera.position.y = camera_distance / 2;
+    // camera.position.z = camera_distance / 2;
 
     // controls
 
@@ -462,9 +513,9 @@ function reinit() {
     loadModel(scene, render_type, face_inverse, sensors_layout,
             radius, 0.6, 'point');
 
-    camera.position.z = camera_distance;
-    camera.position.y = camera_distance / 2;
-    camera.position.x = camera_distance / 2;
+    camera.position.x = camera_distance;
+    // camera.position.y = camera_distance / 2;
+    // camera.position.z = camera_distance / 2;
 
     angle = Math.PI / 2;
 
