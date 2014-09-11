@@ -187,7 +187,7 @@
                     </li>
                 </ul>
                 <span class="follow"><b>Last Update:</b><br><show id="mpu_time"></show></span>
-                <ul style="margin-top:112px;">
+                <ul style="margin-top:80px;">
                     <li><b>Hum:</b>
                         <show id="hum_data"></show>
                     </li>
@@ -260,10 +260,11 @@ var mouse_on_sensor = -1;
 
 var div_width = $("#info").width(), div_height = $("#info").height();
 var div_width2 = $("#lut").width(), div_height2 = $("#lut").height();
-
 //console.log(div_width);
 
-var screen_height = window.innerHeight - 20;
+var MIN_WIN_HEIGHT = 560;
+var screen_height = window.innerHeight > (MIN_WIN_HEIGHT + 20) ? (window.innerHeight - 20) : MIN_WIN_HEIGHT;
+// console.log( screen_height );
 $(".parameter").height(screen_height);
 
 function animation_check(element) {
@@ -468,7 +469,7 @@ function init() {
 
     // controls
 
-    controls = new THREE.TrackballControls(camera);
+    controls = new THREE.TrackballControls(camera, container);
     // controls.damping = 0.2;
 
     window.addEventListener('resize', onWindowResize, false);
@@ -523,7 +524,8 @@ function reinit() {
 }
 
 function onWindowResize() {
-    var screen_height = window.innerHeight - 20;
+    var screen_height = window.innerHeight > (MIN_WIN_HEIGHT + 20) ? (window.innerHeight - 20) : MIN_WIN_HEIGHT;
+    // console.log( screen_height );
     $(".parameter").height(screen_height);
 
     camera.aspect = div_width / div_height;
