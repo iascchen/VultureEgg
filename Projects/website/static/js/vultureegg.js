@@ -8,20 +8,22 @@
 // Render Setting
 // **************
 
+// "Egg" : Egg shell
 // "Color" : fill each area with solid color
 // "Light" : simulate to render heat map of temperature by light.
 
-RENDER_EGG = "egg";
+RENDER_EGG = "Egg";
 RENDER_COLOR = "Color";
 RENDER_LIGHT = "Light";
-var render_type = RENDER_COLOR;
-var temperature_max = 46 , temperature_min = 20;
+var render_type = RENDER_EGG;
 
 // var colorMap = 'blackbody';
 var colorMap = 'rainbow';
+var temperature_max = 46 , temperature_min = 20;
 var numberOfColors = 512;
 
 var isDrawEdgeLine = false;
+var face_inverse = false;
 
 // **************
 // Environments Setting
@@ -39,6 +41,7 @@ var sensors_layout = AREA_LAYOUT;    // Temperature Sensor
 // Calc this object center from obj file
 OBJ_CENTER = {'y': 0, 'x': 0, 'z': 0};
 
+// Please don't modify these number, they are related with egg.obj
 MIN_Y = -0.845625;
 MAX_Y = 1.479844;
 HEIGHT_Y = MAX_Y - MIN_Y;

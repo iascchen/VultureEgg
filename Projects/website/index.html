@@ -233,25 +233,28 @@
 <script>
 
 // ******************
-// Setting
-
-render_type = RENDER_EGG;
-sensors_layout = AREA_LAYOUT;
+// Setting, these variable defined in vultureegg.js
 
 colorMap = 'rainbow';
+temperature_max = 44;
+temperature_min = 20;
+
+render_type = RENDER_EGG;
+// sensors_layout = AREA_LAYOUT;
+
 isDrawEdgeLine = true;
-
-var face_inverse = false;
-
-var animating = false;
-
-var json_file = 'data_current.php';
-// var json_file = 'data.json';
+face_inverse = false;
 
 // ******************
 // Global
 
-var samples_value = null;
+samples_value = null;
+
+var json_file = 'data_current.php';     // Use default egg_id & pi_id defined in config.php
+// var json_file = 'data_current.php?egg_id=xx&pi_id=yy' ;
+// var json_file = 'data.json';
+
+var animating = false;
 
 var radius = 5;
 var camera_distance = 4.5;
@@ -414,6 +417,9 @@ var camera2, scene2, renderer2, legendLayout2, lut_legend2;
 
 var loaded = false;
 
+var angle = 0;
+var index = 0 , times = 0;
+
 // Data
 init();
 animate();
@@ -446,11 +452,9 @@ function init() {
      */
 
     // model
-    // current_temperatures = samples_value["temp"];
     loadModel(scene, render_type, face_inverse, sensors_layout,
             radius, 0.6, 'point');
 
-    // addEnvironmentLights(scene);
     addEnvironmentBlackLights(scene);
 
     // renderer
@@ -464,13 +468,10 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(40, div_width / div_height, 1, 100);
     camera.position.x = camera_distance;
-    // camera.position.y = camera_distance / 2;
-    // camera.position.z = camera_distance / 2;
 
     // controls
 
     controls = new THREE.TrackballControls(camera, container);
-    // controls.damping = 0.2;
 
     window.addEventListener('resize', onWindowResize, false);
     controls.addEventListener('change', render);
@@ -510,15 +511,12 @@ function init_lut(lut) {
 function reinit() {
     scene.remove(m_object);
 
-    // current_temperatures = samples_value["temp"];
     loadModel(scene, render_type, face_inverse, sensors_layout,
             radius, 0.6, 'point');
 
     camera.position.x = camera_distance;
-    // camera.position.y = camera_distance / 2;
-    // camera.position.z = camera_distance / 2;
 
-    angle = Math.PI / 2;
+    angle = 0;
 
     loaded = true;
 }
@@ -533,17 +531,12 @@ function onWindowResize() {
 
     renderer.setSize(div_width, div_height);
 
-    //controls.handleResize();
-
     render();
 }
 
 function render() {
     renderer.render(scene, camera);
 }
-
-var angle = Math.PI / 2;
-var index = 0 , times = 0;
 
 function animate() {
 
@@ -552,7 +545,6 @@ function animate() {
 
         if ((m_object != null) && (samples_value != null)) {
 
-            // current_temperatures = samples_value["temp"];
             current_temperatures = samples_value;
             if (current_temperatures != null)
                 update_temperature(current_temperatures, render_type);
